@@ -1,0 +1,40 @@
+services:
+
+  db:
+    image: bitnami/postgresql
+    container_name: auth_database
+    env_file:
+      - .env
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRESQL_MAX_CONNECTIONS=10000
+    volumes:
+      - postgres_data:/bitnami/postgresql
+    networks:
+      - my_network
+
+  api_service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: auth_api
+    restart: always
+    depends_on:
+      - db
+    command: sh /app/utils/start_api.sh
+    ports:
+      - "8000:8000"
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: postgres_data
