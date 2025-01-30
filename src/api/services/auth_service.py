@@ -1,3 +1,6 @@
+import json
+
+import aio_pika
 import jwt
 from datetime import timedelta, datetime, timezone
 from typing import Tuple, Optional
@@ -31,6 +34,8 @@ class AuthService:
 
             await self.auth_repository.create_user(user)
 
+            await self.__publish_user_registered(user.id, data.username)
+
         access_token, refresh_token = await self.__create_tokens({"id": user.id, "username": data.username})
 
         return TokensCreateResponseDTO(access_token=access_token, refresh_token=refresh_token)
@@ -63,6 +68,21 @@ class AuthService:
             return None
         except jwt.InvalidTokenError:
             return None
+
+    async def __publish_user_registered(self, user_id: int, username: str):
+        connection = await aio_pika.connect_robust(f"amqp://{settings.rabbit_settings.host}")
+        async with connection:
+            channel = await connection.channel()
+
+            await channel.declare_queue("user_registered", durable=True)
+
+            await channel.default_exchange.publish(
+                aio_pika.Message(
+                    body=json.dumps({"user_id": user_id, "username": username}).encode(),
+                    delivery_mode=aio_pika.DeliveryMode.PERSISTENT,  # Сообщения сохраняются в RabbitMQ
+                ),
+                routing_key="user_registered",
+            )
 
     async def refresh_token_service(self, data: AuthRefreshTokenDTO):
         # Декодируем токен

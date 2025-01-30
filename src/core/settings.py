@@ -27,6 +27,13 @@ class JWTSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8', extra='ignore')
 
 
+class RabbitMQSettings(BaseSettings):
+    host: str = Field(..., validation_alias='RABBITMQ_HOST')
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8', extra='ignore')
+
+
+
 class FernetConfiguration(BaseSettings):
     fernet_key: str = Field(..., validation_alias='FERNET_KEY')  # Ключ от шифрование
     fernet_IV: str = Field(..., validation_alias='FERNET_IV')  # IV
@@ -37,6 +44,7 @@ class Settings(BaseSettings):
     database_settings: DBSettings = DBSettings()
     fernet_settings: FernetConfiguration = FernetConfiguration()
     jwt_settings: JWTSettings = JWTSettings()
+    rabbit_settings: RabbitMQSettings = RabbitMQSettings()
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8', extra='ignore')
 

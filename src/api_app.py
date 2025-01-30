@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.controllers.auth_controller import router as auth_router
 
 
-# Определяем middleware и создаем приложение FastAPI
 middleware = [
     Middleware(
         CORSMiddleware,
