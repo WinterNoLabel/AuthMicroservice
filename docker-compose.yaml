@@ -31,6 +31,32 @@ services:
     networks:
       - my_network
 
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"      # Основной порт для AMQP
+      - "15672:15672"    # Веб-интерфейс управления
+    networks:
+      - my_network
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: "/"
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: "-rabbit disk_free_limit absolute 50MB -rabbit vm_memory_high_watermark 0.7"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
 networks:
   my_network:
     driver: bridge
@@ -38,3 +64,6 @@ networks:
 volumes:
   postgres_data:
     name: postgres_data
+
+  rabbitmq_data:
+    name: rabbitmq_data

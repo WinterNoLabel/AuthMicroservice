@@ -19,7 +19,6 @@ app = FastAPI(
     title="Auth Microservice API",
     version="0.0.1",
     docs_url="/docs",
-    root_path="/api",
     middleware=middleware,
 )
 
