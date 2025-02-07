@@ -8,7 +8,6 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String, unique=True, nullable=False)
-    phone_number = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
 
     created_at = Column(DateTime, default=func.now())

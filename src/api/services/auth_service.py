@@ -20,21 +20,20 @@ class AuthService:
         self.auth_repository = auth_repository
 
     async def get_or_create_user(self, data: AuthRequestDTO):
-        encrypted_phone = await encrypt(data.phone_number)
         encrypted_password = await encrypt(data.password)
-        user = await self.auth_repository.get_user_by_phone_number(encrypted_phone, encrypted_password, data.username)
+        user = await self.auth_repository.get_user_by_phone_number(data.username)
 
         if not user:
 
             user = User(
                 username=data.username,
-                phone_number=encrypted_phone,
                 password=encrypted_password
             )
 
             await self.auth_repository.create_user(user)
 
             await self.__publish_user_registered(user.id, data.username)
+
 
         access_token, refresh_token = await self.__create_tokens({"id": user.id, "username": data.username})
 

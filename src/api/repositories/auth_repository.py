@@ -16,13 +16,10 @@ class AuthRepository:
         return result.scalar_one_or_none()
 
 
-    async def get_user_by_phone_number(self, phone_number: str, password: str, username: str):
+    async def get_user_by_phone_number(self, username: str):
         result = await self.session.execute(
             select(User)
-            .where(User.phone_number == phone_number,
-                   User.password == password,
-                   User.username == username
-                   )
+            .where(User.username == username)
         )
         return result.scalar_one_or_none()
 
